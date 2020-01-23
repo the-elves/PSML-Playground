@@ -57,7 +57,7 @@ class CFG(object):
         
 cfg1 = CFG()
 cfg1.add_prod('S', 'x|y|( S + S )|( S if B else S )')
-cfg1.add_prod('B', ' ( S < S )|( S = S )|( S > S )|True|False')
+cfg1.add_prod('B', ' ( S < S )|( S == S )|( S > S )|True|False')
 
 if __name__ == '__main__':
     f = open(sys.argv[1])
