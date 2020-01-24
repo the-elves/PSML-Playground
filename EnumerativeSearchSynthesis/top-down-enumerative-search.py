@@ -31,11 +31,21 @@ class CFG(object):
             if sym in self.prod:
                 return True
         return False
+
+    def number_of_terminals(self, st):
+        count = 0
+        for sym in st:
+            if sym =='x' or sym == 'y':
+                count+=1
+        return count
+
     
+    def ranking(self, st):
+        #penalise if then else
+        if('if' in st):
+            return len(st)*2
+        return len(st)
         
-
-
-
     def get_next_prog(self):
         top = self.q.pop(0)
         while self.prod_contains_nonterminal(top):
@@ -48,7 +58,7 @@ class CFG(object):
                 if (len(top[i+1:]) > 0):
                     n = n + top[i+1:]
                 self.q = [n] + self.q
-                self.q.sort(key=len)
+            self.q.sort(key=self.ranking)
             top = self.q.pop(0)
 
         if not self.prod_contains_nonterminal(top):
@@ -63,19 +73,29 @@ if __name__ == '__main__':
     f = open(sys.argv[1])
     reader = csv.reader(f,delimiter=',')
     eg = [(r[0], r[1], r[2]) for r in reader]
+    progs_done=0
+    OUTPUT=False
     while True:
         p = cfg1.get_next_prog()
-        print("Evaluating program {}".format(p))
+        if(progs_done % 1000) ==0:
+            OUTPUT = True
+        if(OUTPUT):
+            print("{} Programs evaluated".format(progs_done))
+            print("Evaluating program {}".format(p))
         correct = 0
         for e in eg:
-            print("  Evaluating example {}".format(e))
+            if(OUTPUT):
+                print("  Evaluating example {}".format(e))
             p_inst = p.replace('x', e[0])
             p_inst = p_inst.replace('y', e[1])
-            print("  Evaluation = %d" % eval(p_inst))
+            if(OUTPUT):
+                print("  Evaluation = %d" % eval(p_inst))
             if (eval(p_inst) == int(e[2])):
                 correct+=1;
         if correct == len(eg):
             print(p)
             exit(0)
+        OUTPUT=False
+        progs_done+=1
                 
     f.close()
